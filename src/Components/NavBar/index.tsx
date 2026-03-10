@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import type { NavbarProps as BaseNavbarProps, Notification } from '../../types/Navbar';
 import { 
   Bell, 
@@ -12,7 +12,6 @@ import {
   AlertTriangle,
   Info,
   ChevronDown,
-  Search,
   Menu,
   X
 } from 'lucide-react';
@@ -34,7 +33,6 @@ type NavbarProps = BaseNavbarProps & {
 const Navbar: React.FC<NavbarProps> = ({ 
   user, 
   onLogout, 
-  appName = "DashVendas",
   className = "",
   darkMode,
   onDarkModeToggle,
@@ -44,16 +42,13 @@ const Navbar: React.FC<NavbarProps> = ({
   onNotificationsClick,
   onProfileClick,
   onSettingsClick,
-  showSearch = true,
   showMobileMenu = false,
   onMobileMenuToggle
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
-  const searchRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
