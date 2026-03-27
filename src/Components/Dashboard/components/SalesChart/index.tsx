@@ -33,27 +33,49 @@ interface SalesChartProps {
   darkMode: boolean;
 }
 
-// Função de formatação local para evitar problemas de import
+// Função de formatação local
 const formatarMoeda = (valor: number): string => {
   try {
+    if (typeof valor !== 'number' || isNaN(valor)) valor = 0;
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
-    }).format(valor || 0);
+    }).format(valor);
   } catch (error) {
-    return `R$ ${(valor || 0).toFixed(2).replace('.', ',')}`;
+    return `R$ ${valor.toFixed(2).replace('.', ',')}`;
   }
 };
 
 const SalesChart: React.FC<SalesChartProps> = ({ meses, fechado, pendente, estimado, darkMode }) => {
+  // Verificar se há dados
+  const hasData = fechado?.some(v => v > 0) || pendente?.some(v => v > 0);
+  
+  if (!hasData) {
+    return (
+      <div className={`${styles.graficoContainer} ${darkMode ? styles.dark : ''}`}>
+        <div className={`${styles.graficoTitulo} ${darkMode ? styles.dark : ''}`}>
+          Análise Financeira (Últimos 6 meses)
+        </div>
+        <div className={styles.graficoSubTitulo}>
+          Valores em reais - Compare Recebido, Em Aberto e Total Estimado
+        </div>
+        <div className={styles.graficoVazio}>
+          <p>Nenhum dado financeiro disponível para o gráfico</p>
+          <p className={styles.graficoAjuda}>
+            Dica: Adicione valores às vendas e altere o estágio para "finalizado" ou mantenha em negociação para ver os dados
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // Cores baseadas no tema
   const fechadoColor = darkMode ? '#10b981' : '#059669';
   const pendenteColor = darkMode ? '#f59e0b' : '#d97706';
   const estimadoColor = darkMode ? '#8b5cf6' : '#7c3aed';
   
-  // Cores de texto baseadas no tema
   const textColor = darkMode ? '#e5e7eb' : '#374151';
   const gridColor = darkMode ? 'rgba(75, 85, 99, 0.3)' : 'rgba(209, 213, 219, 0.6)';
   const axisTextColor = darkMode ? '#9ca3af' : '#6b7280';
@@ -86,46 +108,33 @@ const SalesChart: React.FC<SalesChartProps> = ({ meses, fechado, pendente, estim
       {
         label: 'Total Estimado',
         data: estimado,
-        backgroundColor: estimadoColor,
-        borderColor: estimadoColor,
-        borderWidth: 1,
-        borderRadius: 4,
-        barPercentage: 0.7,
-        categoryPercentage: 0.8,
         type: 'line' as const,
-        fill: false,
+        borderColor: estimadoColor,
+        backgroundColor: 'transparent',
+        borderWidth: 2,
         tension: 0.4,
         pointRadius: 4,
         pointHoverRadius: 6,
         pointBackgroundColor: estimadoColor,
         pointBorderColor: darkMode ? '#1f2937' : '#ffffff',
         pointBorderWidth: 2,
+        fill: false,
       }
     ],
   };
 
-  const chartOptions: ChartOptions = {
+  const chartOptions: ChartOptions<'bar' | 'line'> = {
     responsive: true,
     maintainAspectRatio: false,
-    interaction: {
-      mode: 'index',
-      intersect: false,
-    },
     plugins: {
       legend: {
-        position: 'top' as const,
+        position: 'top',
         labels: {
           color: textColor,
-          font: {
-            size: 12,
-            weight: 600
-          },
+          font: { size: 12, weight: 600 },
           usePointStyle: true,
           boxWidth: 10,
         }
-      },
-      title: {
-        display: false,
       },
       tooltip: {
         backgroundColor: tooltipBgColor,
@@ -133,54 +142,33 @@ const SalesChart: React.FC<SalesChartProps> = ({ meses, fechado, pendente, estim
         bodyColor: textColor,
         borderColor: tooltipBorderColor,
         borderWidth: 1,
-        cornerRadius: 6,
         callbacks: {
           label: function(context) {
-            let label = context.dataset.label || '';
-            if (label) {
-              label += ': ';
-            }
+            const label = context.dataset.label || '';
             const value = context.raw as number;
-            label += formatarMoeda(value);
-            return label;
+            return `${label}: ${formatarMoeda(value)}`;
           }
         }
       }
     },
     scales: {
       x: {
-        grid: {
-          color: gridColor,
-          display: false,
-        },
-        ticks: {
-          color: axisTextColor,
-          font: {
-            size: 11,
-            weight: 500
-          }
-        }
+        grid: { display: false, color: gridColor },
+        ticks: { color: axisTextColor, font: { size: 11 } }
       },
       y: {
         beginAtZero: true,
-        grid: {
-          color: gridColor,
-        },
+        grid: { color: gridColor },
         ticks: {
           color: axisTextColor,
-          font: {
-            size: 11,
-            weight: 500
-          },
+          font: { size: 11 },
           callback: function(value) {
             return formatarMoeda(value as number);
           }
         }
-      },
-    },
+      }
+    }
   };
-
-  const hasData = fechado.some(v => v > 0) || pendente.some(v => v > 0);
 
   return (
     <div className={`${styles.graficoContainer} ${darkMode ? styles.dark : ''}`}>
@@ -191,16 +179,7 @@ const SalesChart: React.FC<SalesChartProps> = ({ meses, fechado, pendente, estim
         Valores em reais - Compare Recebido, Em Aberto e Total Estimado
       </div>
       <div className={styles.graficoWrapper}>
-        {hasData ? (
-          <Chart type="bar" data={chartData} options={chartOptions} />
-        ) : (
-          <div className={styles.graficoVazio}>
-            <p>Nenhum dado financeiro disponível para o gráfico</p>
-            <p className={styles.graficoAjuda}>
-              Dica: Adicione valores às vendas e altere o estágio para "finalizado" ou mantenha em negociação para ver os dados
-            </p>
-          </div>
-        )}
+        <Chart type="bar" data={chartData} options={chartOptions} />
       </div>
     </div>
   );

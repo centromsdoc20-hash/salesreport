@@ -10,17 +10,18 @@ interface MetricCardProps {
   icon?: string;
 }
 
-// Função de formatação local para evitar problemas de import
+// Função de formatação local
 const formatarMoeda = (valor: number): string => {
   try {
+    if (typeof valor !== 'number' || isNaN(valor)) valor = 0;
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
-    }).format(valor || 0);
+    }).format(valor);
   } catch (error) {
-    return `R$ ${(valor || 0).toFixed(2).replace('.', ',')}`;
+    return `R$ ${valor.toFixed(2).replace('.', ',')}`;
   }
 };
 
