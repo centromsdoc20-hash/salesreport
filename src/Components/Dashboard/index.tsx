@@ -1,17 +1,5 @@
-// Dashboard.tsx - VERSÃO ATUALIZADA COM VALORES
 import React, { useState, useEffect } from 'react';
 import { salesService } from '../../services/SalesService/SalesService';
-import type { Sale } from '../../types/Sales';
-import type { DadosGrafico } from './utils/dashboardCalculations';
-import { calcularMetricas, calcularDadosGrafico } from './utils/dashboardCalculations';
-
-import MetricCard from './components/MetricCard';
-import SalesChart from './components/SalesChart';
-import SalesTable from './components/SalesTable';
-import LoadingState from './components/LoadingState';
-import ErrorState from './components/ErrorState';
-
-import styles from './styles.module.scss';
 
 interface DashboardProps {
   darkMode: boolean;
@@ -19,148 +7,68 @@ interface DashboardProps {
   users?: any[]; 
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ darkMode, className = "", users = [] }) => {
-  const [metricas, setMetricas] = useState({
-    totalFechado: 0,
-    totalPendente: 0,
-    totalEstimado: 0,
-    vendasFechadasMes: 0,
-    vendasPendentesMes: 0,
-    crescimentoFechado: 0
-  });
-  const [vendas, setVendas] = useState<Sale[]>([]);
-  const [dadosGrafico, setDadosGrafico] = useState<DadosGrafico>({ 
-    meses: [], 
-    fechado: [], 
-    pendente: [], 
-    estimado: [] 
-  });
+const Dashboard: React.FC<DashboardProps> = ({ darkMode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [vendas, setVendas] = useState<any[]>([]);
 
   useEffect(() => {
-    loadDashboardData();
+    console.log('🟢 Dashboard MOUNTOU - Iniciando');
+    
+    const loadData = async () => {
+      try {
+        console.log('🟡 Tentando carregar vendas...');
+        const data = await salesService.getSales();
+        console.log('🟢 Vendas carregadas:', data);
+        setVendas(data);
+        setLoading(false);
+      } catch (err) {
+        console.error('🔴 ERRO AO CARREGAR:', err);
+        setError(err instanceof Error ? err.message : 'Erro desconhecido');
+        setLoading(false);
+      }
+    };
+    
+    loadData();
   }, []);
 
-  const loadDashboardData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const salesData = await salesService.getSales();
-      setVendas(salesData);
-      
-      const metricasData = calcularMetricas(salesData);
-      setMetricas(metricasData);
-      
-      const graficoData = calcularDadosGrafico(salesData);
-      setDadosGrafico(graficoData);
-      
-    } catch (error) {
-      console.error('Erro ao carregar dashboard:', error);
-      setError('Erro ao carregar dados do dashboard. Tente novamente.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRefresh = () => {
-    setError(null);
-    loadDashboardData();
-  };
-
-  if (loading) {
-    return <LoadingState darkMode={darkMode} />;
-  }
-
-  if (error) {
-    return (
-      <ErrorState 
-        error={error}
-        onRetry={loadDashboardData}
-        loading={loading}
-        darkMode={darkMode}
-      />
-    );
-  }
-
+  // Renderização mínima
   return (
-    <div className={`${styles.dashboard} ${darkMode ? styles.dark : ''} ${className}`}>
-      <div className={styles.dashboardHeader}>
-        <h2 className={`${styles.dashboardTitle} ${darkMode ? styles.dark : ''}`}>
-          Resumo Financeiro
-        </h2>
-        <button 
-          className={`${styles.refreshButton} ${darkMode ? styles.dark : ''}`}
-          onClick={handleRefresh}
-          disabled={loading}
-        >
-          {loading ? 'Atualizando...' : 'Atualizar Dados'}
-        </button>
-      </div>
+    <div style={{ padding: '20px', background: darkMode ? '#1a1a1a' : '#f5f5f5', minHeight: '100vh' }}>
+      <h1 style={{ color: darkMode ? '#fff' : '#000' }}>Dashboard Teste</h1>
       
-      <div className={styles.metricasContainer}>
-        <MetricCard
-          title="Total Recebido (Fechado)"
-          value={metricas.totalFechado}
-          info="Total de vendas já finalizadas"
-          trend="total"
-          darkMode={darkMode}
-          icon="💰"
-        />
-
-        <MetricCard
-          title="Valor em Aberto"
-          value={metricas.totalPendente}
-          info="Vendas em negociação"
-          trend="neutral"
-          darkMode={darkMode}
-          icon="⏳"
-        />
-
-        <MetricCard
-          title="Valor Total Estimado"
-          value={metricas.totalEstimado}
-          info="Recebido + Em aberto"
-          trend="total"
-          darkMode={darkMode}
-          icon="📊"
-        />
-      </div>
-
-      <div className={styles.metricasContainer}>
-        <MetricCard
-          title="Fechado neste Mês"
-          value={metricas.vendasFechadasMes}
-          info={`${metricas.crescimentoFechado >= 0 ? '↗' : '↘'} ${Math.abs(metricas.crescimentoFechado)}% vs mês anterior`}
-          trend={metricas.crescimentoFechado >= 0 ? "positive" : "negative"}
-          darkMode={darkMode}
-          icon={metricas.crescimentoFechado >= 0 ? "📈" : "📉"}
-        />
-
-        <MetricCard
-          title="Em Aberto neste Mês"
-          value={metricas.vendasPendentesMes}
-          info="Valor pendente do mês atual"
-          trend="neutral"
-          darkMode={darkMode}
-          icon="🔄"
-        />
-      </div>
-
-      <SalesChart
-        meses={dadosGrafico.meses}
-        fechado={dadosGrafico.fechado}
-        pendente={dadosGrafico.pendente}
-        estimado={dadosGrafico.estimado}
-        darkMode={darkMode}
-      />
-
-      <SalesTable
-        vendas={vendas}
-        users={users}
-        darkMode={darkMode}
-      />
+      {loading && (
+        <div style={{ padding: '20px', background: '#fff', borderRadius: '8px', marginTop: '20px' }}>
+          <h3>⏳ Carregando dados...</h3>
+          <p>Aguardando resposta do servidor...</p>
+        </div>
+      )}
+      
+      {error && (
+        <div style={{ padding: '20px', background: '#ffebee', borderRadius: '8px', marginTop: '20px', color: '#c62828' }}>
+          <h3>❌ Erro ao carregar</h3>
+          <p>{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{ marginTop: '10px', padding: '8px 16px', cursor: 'pointer' }}
+          >
+            Tentar novamente
+          </button>
+        </div>
+      )}
+      
+      {!loading && !error && (
+        <div style={{ padding: '20px', background: '#fff', borderRadius: '8px', marginTop: '20px' }}>
+          <h3>✅ Dados carregados com sucesso!</h3>
+          <p>Total de vendas: {vendas.length}</p>
+          <details>
+            <summary>Ver primeiras 5 vendas</summary>
+            <pre style={{ background: '#f0f0f0', padding: '10px', overflow: 'auto' }}>
+              {JSON.stringify(vendas.slice(0, 5), null, 2)}
+            </pre>
+          </details>
+        </div>
+      )}
     </div>
   );
 };
