@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  BarChart,
   Bar,
   Line,
   XAxis,
