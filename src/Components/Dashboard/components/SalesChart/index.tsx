@@ -13,7 +13,6 @@ import {
   type ChartOptions
 } from 'chart.js';
 import styles from './styles.module.scss';
-import { formatarMoeda } from '../../utils/dashboardCalculations';
 
 ChartJS.register(
   CategoryScale,
@@ -33,6 +32,20 @@ interface SalesChartProps {
   estimado: number[];
   darkMode: boolean;
 }
+
+// Função de formatação local para evitar problemas de import
+const formatarMoeda = (valor: number): string => {
+  try {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(valor || 0);
+  } catch (error) {
+    return `R$ ${(valor || 0).toFixed(2).replace('.', ',')}`;
+  }
+};
 
 const SalesChart: React.FC<SalesChartProps> = ({ meses, fechado, pendente, estimado, darkMode }) => {
   // Cores baseadas no tema

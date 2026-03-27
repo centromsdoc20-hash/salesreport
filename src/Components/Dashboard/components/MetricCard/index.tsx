@@ -1,6 +1,5 @@
 import React from 'react';
 import styles from './styles.module.scss';
-import { formatarMoeda } from '../../utils/dashboardCalculations';
 
 interface MetricCardProps {
   title: string;
@@ -11,6 +10,20 @@ interface MetricCardProps {
   icon?: string;
 }
 
+// Função de formatação local para evitar problemas de import
+const formatarMoeda = (valor: number): string => {
+  try {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(valor || 0);
+  } catch (error) {
+    return `R$ ${(valor || 0).toFixed(2).replace('.', ',')}`;
+  }
+};
+
 const MetricCard: React.FC<MetricCardProps> = ({
   title,
   value,
@@ -19,7 +32,6 @@ const MetricCard: React.FC<MetricCardProps> = ({
   darkMode,
   icon
 }) => {
-  // Formatar o valor como moeda
   const valorFormatado = formatarMoeda(value);
 
   return (

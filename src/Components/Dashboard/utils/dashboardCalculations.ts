@@ -171,12 +171,20 @@ export const calcularDadosGrafico = (sales: Sale[]): DadosGrafico => {
   };
 };
 
-// Função auxiliar para formatar valor em moeda brasileira
 export const formatarMoeda = (valor: number): string => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(valor);
+  try {
+    const valorNumero = typeof valor === 'number' && !isNaN(valor) ? valor : 0;
+    
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(valorNumero);
+  } catch (error) {
+    // Fallback caso o Intl falhe
+    console.error('Erro ao formatar moeda, usando fallback:', error);
+    const valorFormatado = (valor || 0).toFixed(2).replace('.', ',');
+    return `R$ ${valorFormatado}`;
+  }
 };
