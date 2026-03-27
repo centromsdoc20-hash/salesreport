@@ -1,4 +1,16 @@
 import React from 'react';
+import {
+  BarChart,
+  Bar,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  ComposedChart
+} from 'recharts';
 import styles from './styles.module.scss';
 
 interface SalesChartProps {
@@ -9,18 +21,54 @@ interface SalesChartProps {
   darkMode: boolean;
 }
 
-const SalesChart: React.FC<SalesChartProps> = ({ meses, fechado, pendente, estimado, darkMode }) => {
-  console.log('📊 SalesChart renderizando com:', { meses, fechado, pendente, estimado });
+const formatarMoeda = (valor: number): string => {
+  try {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(valor || 0);
+  } catch {
+    return `R$ ${(valor || 0).toFixed(2).replace('.', ',')}`;
+  }
+};
 
-  const formatarMoeda = (valor: number): string => {
-    try {
-      return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      }).format(valor || 0);
-    } catch {
-      return `R$ ${(valor || 0).toFixed(2).replace('.', ',')}`;
-    }
+const SalesChart: React.FC<SalesChartProps> = ({ meses, fechado, pendente, estimado, darkMode }) => {
+  // Preparar dados para o gráfico
+  const data = meses.map((mes, index) => ({
+    mes,
+    recebido: fechado[index] || 0,
+    emAberto: pendente[index] || 0,
+    totalEstimado: estimado[index] || 0
+  }));
+
+  const hasData = data.some(item => item.recebido > 0 || item.emAberto > 0);
+
+  if (!hasData) {
+    return (
+      <div className={`${styles.graficoContainer} ${darkMode ? styles.dark : ''}`}>
+        <div className={`${styles.graficoTitulo} ${darkMode ? styles.dark : ''}`}>
+          Análise Financeira (Últimos 6 meses)
+        </div>
+        <div className={styles.graficoSubTitulo}>
+          Valores em reais - Compare Recebido, Em Aberto e Total Estimado
+        </div>
+        <div className={styles.graficoVazio}>
+          <p>Nenhum dado financeiro disponível para o gráfico</p>
+          <p className={styles.graficoAjuda}>
+            Dica: Adicione valores às vendas e altere o estágio para "finalizado" ou mantenha em negociação para ver os dados
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Cores baseadas no tema
+  const colors = {
+    recebido: darkMode ? '#10b981' : '#059669',
+    emAberto: darkMode ? '#f59e0b' : '#d97706',
+    totalEstimado: darkMode ? '#8b5cf6' : '#7c3aed',
+    text: darkMode ? '#e5e7eb' : '#374151',
+    grid: darkMode ? 'rgba(75, 85, 99, 0.3)' : 'rgba(209, 213, 219, 0.6)'
   };
 
   return (
@@ -31,45 +79,38 @@ const SalesChart: React.FC<SalesChartProps> = ({ meses, fechado, pendente, estim
       <div className={styles.graficoSubTitulo}>
         Valores em reais - Compare Recebido, Em Aberto e Total Estimado
       </div>
-      
-      {/* Versão simples em tabela */}
-      <div style={{ overflowX: 'auto', marginTop: '20px' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: darkMode ? '#374151' : '#f3f4f6' }}>
-              <th style={{ padding: '12px', textAlign: 'left' }}>Mês</th>
-              <th style={{ padding: '12px', textAlign: 'right' }}>Recebido</th>
-              <th style={{ padding: '12px', textAlign: 'right' }}>Em Aberto</th>
-              <th style={{ padding: '12px', textAlign: 'right' }}>Total Estimado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {meses.map((mes, index) => (
-              <tr key={index} style={{ borderBottom: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}` }}>
-                <td style={{ padding: '12px' }}>{mes}</td>
-                <td style={{ padding: '12px', textAlign: 'right', color: '#10b981' }}>
-                  {formatarMoeda(fechado[index] || 0)}
-                </td>
-                <td style={{ padding: '12px', textAlign: 'right', color: '#f59e0b' }}>
-                  {formatarMoeda(pendente[index] || 0)}
-                </td>
-                <td style={{ padding: '12px', textAlign: 'right', color: '#8b5cf6', fontWeight: 'bold' }}>
-                  {formatarMoeda(estimado[index] || 0)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className={styles.graficoWrapper}>
+        <ResponsiveContainer width="100%" height={400}>
+          <ComposedChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
+            <XAxis dataKey="mes" stroke={colors.text} />
+            <YAxis 
+              stroke={colors.text}
+              tickFormatter={(value) => formatarMoeda(value)}
+            />
+            <Tooltip 
+              formatter={(value: number) => formatarMoeda(value)}
+              contentStyle={{
+                backgroundColor: darkMode ? '#1f2937' : '#ffffff',
+                borderColor: darkMode ? '#4b5563' : '#e5e7eb',
+                color: colors.text
+              }}
+            />
+            <Legend />
+            <Bar dataKey="recebido" name="Recebido (Fechado)" fill={colors.recebido} radius={[4, 4, 0, 0]} />
+            <Bar dataKey="emAberto" name="Em Aberto (Pendente)" fill={colors.emAberto} radius={[4, 4, 0, 0]} />
+            <Line 
+              type="monotone" 
+              dataKey="totalEstimado" 
+              name="Total Estimado" 
+              stroke={colors.totalEstimado} 
+              strokeWidth={2}
+              dot={{ r: 4, fill: colors.totalEstimado }}
+              activeDot={{ r: 6 }}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
       </div>
-      
-      {!meses.length && (
-        <div className={styles.graficoVazio}>
-          <p>Nenhum dado financeiro disponível para o gráfico</p>
-          <p className={styles.graficoAjuda}>
-            Dica: Adicione valores às vendas e altere o estágio para "finalizado" ou mantenha em negociação para ver os dados
-          </p>
-        </div>
-      )}
     </div>
   );
 };
