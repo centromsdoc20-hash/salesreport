@@ -5,6 +5,7 @@ import type { DadosGrafico } from './utils/dashboardCalculations';
 import { calcularMetricas, calcularDadosGrafico } from './utils/dashboardCalculations';
 
 import MetricCard from './components/MetricCard';
+import SalesChart from './components/SalesChart';
 import SalesTable from './components/SalesTable';
 import LoadingState from './components/LoadingState';
 import ErrorState from './components/ErrorState';
@@ -36,12 +37,9 @@ const Dashboard: React.FC<DashboardProps> = ({ darkMode, className = "", users =
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  console.log(dadosGrafico)
-
   useEffect(() => {
     loadDashboardData();
   }, []);
-  
 
   const loadDashboardData = async () => {
     try {
@@ -155,7 +153,14 @@ const Dashboard: React.FC<DashboardProps> = ({ darkMode, className = "", users =
         />
       </div>
 
-    
+      <SalesChart
+        meses={dadosGrafico.meses}
+        fechado={dadosGrafico.fechado}
+        pendente={dadosGrafico.pendente}
+        estimado={dadosGrafico.estimado}
+        darkMode={darkMode}
+      />
+
       <SalesTable
         vendas={vendas}
         users={users}

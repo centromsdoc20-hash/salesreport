@@ -49,7 +49,6 @@ const formatarMoeda = (valor: number): string => {
 };
 
 const SalesChart: React.FC<SalesChartProps> = ({ meses, fechado, pendente, estimado, darkMode }) => {
-  // Verificar se há dados
   const hasData = fechado?.some(v => v > 0) || pendente?.some(v => v > 0);
   
   if (!hasData) {
