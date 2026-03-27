@@ -89,7 +89,7 @@ const SalesChart: React.FC<SalesChartProps> = ({ meses, fechado, pendente, estim
               tickFormatter={(value) => formatarMoeda(value)}
             />
             <Tooltip 
-              formatter={(value: number) => formatarMoeda(value)}
+              formatter={(value) => value !== undefined && value !== null ? formatarMoeda(value as number) : ''}
               contentStyle={{
                 backgroundColor: darkMode ? '#1f2937' : '#ffffff',
                 borderColor: darkMode ? '#4b5563' : '#e5e7eb',
