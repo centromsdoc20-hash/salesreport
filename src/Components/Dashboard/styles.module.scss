@@ -69,6 +69,252 @@
   margin-bottom: 30px;
 }
 
+// Estilos para o MetricCard
+.metricaCard {
+  background: $color-white-light;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+
+  &.dark {
+    background: $color-bg-dark;
+    border-color: $color-border-dark;
+  }
+
+  &.trend-positive {
+    border-left-color: #10b981;
+  }
+
+  &.trend-negative {
+    border-left-color: #ef4444;
+  }
+
+  &.trend-neutral {
+    border-left-color: #6b7280;
+  }
+
+  &.trend-total {
+    border-left-color: #8b5cf6;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    &.dark {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .cardIcon {
+    font-size: 24px;
+  }
+
+  .metricaTitulo {
+    font-size: $font-size-small;
+    font-weight: 600;
+    color: $color-text-light;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &.dark {
+      color: $color-text-dark;
+    }
+  }
+
+  .metricaValor {
+    font-size: 28px;
+    font-weight: 700;
+    color: $color-title-text-light;
+    margin-bottom: 8px;
+
+    &.dark {
+      color: $color-title-text-dark;
+    }
+  }
+
+  .metricaInfo {
+    font-size: $font-size-small;
+    color: $color-text-light-light;
+
+    &.positivo {
+      color: #10b981;
+    }
+
+    &.negativo {
+      color: #ef4444;
+    }
+
+    .dark & {
+      color: $color-text-dark-light;
+    }
+  }
+}
+
+// Estilos para o gráfico
+.graficoContainer {
+  background: $color-white-light;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  &.dark {
+    background: $color-bg-dark;
+    border-color: $color-border-dark;
+  }
+
+  .graficoTitulo {
+    font-size: 18px;
+    font-weight: 600;
+    color: $color-title-text-light;
+    margin-bottom: 8px;
+
+    &.dark {
+      color: $color-title-text-dark;
+    }
+  }
+
+  .graficoSubTitulo {
+    font-size: $font-size-small;
+    color: $color-text-light-light;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid $color-border-light;
+
+    .dark & {
+      color: $color-text-dark-light;
+      border-bottom-color: $color-border-dark;
+    }
+  }
+
+  .graficoWrapper {
+    height: 400px;
+    position: relative;
+  }
+
+  .graficoVazio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    color: $color-text-light-light;
+
+    p {
+      margin: 8px 0;
+    }
+
+    .graficoAjuda {
+      font-size: $font-size-small;
+      opacity: 0.8;
+    }
+
+    .dark & {
+      color: $color-text-dark-light;
+    }
+  }
+}
+
+// Loading State
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid $color-border-light;
+    border-top-color: $color-primary-light;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+
+    &.dark {
+      border-color: $color-border-dark;
+      border-top-color: $color-primary-dark;
+    }
+  }
+
+  p {
+    color: $color-text-light-light;
+    font-size: $font-size-small;
+
+    &.dark {
+      color: $color-text-dark-light;
+    }
+  }
+}
+
+// Error State
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+  text-align: center;
+
+  .errorIcon {
+    font-size: 48px;
+  }
+
+  p {
+    color: $color-text-light-light;
+    font-size: $font-size-small;
+    max-width: 400px;
+
+    &.dark {
+      color: $color-text-dark-light;
+    }
+  }
+
+  .retryButton {
+    background: $color-bg-button-light;
+    color: $color-white-light;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &.dark {
+      background: $color-bg-button-dark;
+      color: $color-white-dark;
+    }
+
+    &:hover:not(:disabled) {
+      background: $color-hover-text-light;
+      transform: translateY(-1px);
+
+      &.dark {
+        background: $color-hover-text-dark;
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 768px) {
   .dashboard {
     padding: 15px;
@@ -85,11 +331,29 @@
     grid-template-columns: 1fr;
     gap: 15px;
   }
+
+  .graficoContainer {
+    .graficoWrapper {
+      height: 300px;
+    }
+  }
+
+  .metricaCard {
+    .metricaValor {
+      font-size: 24px;
+    }
+  }
 }
 
 @media (max-width: 480px) {
   .dashboard {
     padding: 10px;
     padding-top: 10vh;
+  }
+
+  .graficoContainer {
+    .graficoWrapper {
+      height: 250px;
+    }
   }
 }

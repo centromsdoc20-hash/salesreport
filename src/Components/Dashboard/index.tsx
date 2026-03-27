@@ -1,9 +1,9 @@
-// Dashboard.tsx - VERSÃO CORRIGIDA
+// Dashboard.tsx - VERSÃO ATUALIZADA COM VALORES
 import React, { useState, useEffect } from 'react';
 import { salesService } from '../../services/SalesService/SalesService';
 import type { Sale } from '../../types/Sales';
 import type { DadosGrafico } from './utils/dashboardCalculations';
-import { calcularMetricas, calcularDadosGrafico } from './utils/dashboardCalculations';
+import { calcularMetricas, calcularDadosGrafico, formatarMoeda } from './utils/dashboardCalculations';
 
 import MetricCard from './components/MetricCard';
 import SalesChart from './components/SalesChart';
@@ -21,13 +21,20 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ darkMode, className = "", users = [] }) => {
   const [metricas, setMetricas] = useState({
-    totalVendas: 0,
-    vendasMes: 0,
-    mediaMensal: 0,
-    crescimento: 0
+    totalFechado: 0,
+    totalPendente: 0,
+    totalEstimado: 0,
+    vendasFechadasMes: 0,
+    vendasPendentesMes: 0,
+    crescimentoFechado: 0
   });
   const [vendas, setVendas] = useState<Sale[]>([]);
-  const [dadosGrafico, setDadosGrafico] = useState<DadosGrafico>({ meses: [], vendas: [] });
+  const [dadosGrafico, setDadosGrafico] = useState<DadosGrafico>({ 
+    meses: [], 
+    fechado: [], 
+    pendente: [], 
+    estimado: [] 
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,6 +57,7 @@ const Dashboard: React.FC<DashboardProps> = ({ darkMode, className = "", users =
       setDadosGrafico(graficoData);
       
     } catch (error) {
+      console.error('Erro ao carregar dashboard:', error);
       setError('Erro ao carregar dados do dashboard. Tente novamente.');
     } finally {
       setLoading(false);
@@ -80,7 +88,7 @@ const Dashboard: React.FC<DashboardProps> = ({ darkMode, className = "", users =
     <div className={`${styles.dashboard} ${darkMode ? styles.dark : ''} ${className}`}>
       <div className={styles.dashboardHeader}>
         <h2 className={`${styles.dashboardTitle} ${darkMode ? styles.dark : ''}`}>
-          Resumo
+          Resumo Financeiro
         </h2>
         <button 
           className={`${styles.refreshButton} ${darkMode ? styles.dark : ''}`}
@@ -93,36 +101,58 @@ const Dashboard: React.FC<DashboardProps> = ({ darkMode, className = "", users =
       
       <div className={styles.metricasContainer}>
         <MetricCard
-          title="Total de Vendas Fechadas"
-          value={metricas.totalVendas}
-          info="Vendas concluídas com sucesso"
+          title="Total Recebido (Fechado)"
+          value={metricas.totalFechado}
+          info="Total de vendas já finalizadas"
           trend="total"
           darkMode={darkMode}
           icon="💰"
         />
 
         <MetricCard
-          title="Vendas Fechadas Este Mês"
-          value={metricas.vendasMes}
-          info={`${metricas.crescimento >= 0 ? '↗' : '↘'} ${Math.abs(metricas.crescimento)}% vs mês anterior`}
-          trend={metricas.crescimento >= 0 ? "positive" : "negative"}
+          title="Valor em Aberto"
+          value={metricas.totalPendente}
+          info="Vendas em negociação"
+          trend="neutral"
           darkMode={darkMode}
-          icon={metricas.crescimento >= 0 ? "📈" : "📉"}
+          icon="⏳"
         />
 
         <MetricCard
-          title="Média Mensal de Vendas"
-          value={metricas.mediaMensal}
-          info="Média de vendas fechadas (últimos 6 meses)"
-          trend="neutral"
+          title="Valor Total Estimado"
+          value={metricas.totalEstimado}
+          info="Recebido + Em aberto"
+          trend="total"
           darkMode={darkMode}
           icon="📊"
         />
       </div>
 
+      <div className={styles.metricasContainer}>
+        <MetricCard
+          title="Fechado neste Mês"
+          value={metricas.vendasFechadasMes}
+          info={`${metricas.crescimentoFechado >= 0 ? '↗' : '↘'} ${Math.abs(metricas.crescimentoFechado)}% vs mês anterior`}
+          trend={metricas.crescimentoFechado >= 0 ? "positive" : "negative"}
+          darkMode={darkMode}
+          icon={metricas.crescimentoFechado >= 0 ? "📈" : "📉"}
+        />
+
+        <MetricCard
+          title="Em Aberto neste Mês"
+          value={metricas.vendasPendentesMes}
+          info="Valor pendente do mês atual"
+          trend="neutral"
+          darkMode={darkMode}
+          icon="🔄"
+        />
+      </div>
+
       <SalesChart
         meses={dadosGrafico.meses}
-        vendas={dadosGrafico.vendas}
+        fechado={dadosGrafico.fechado}
+        pendente={dadosGrafico.pendente}
+        estimado={dadosGrafico.estimado}
         darkMode={darkMode}
       />
 

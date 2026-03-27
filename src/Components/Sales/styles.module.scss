@@ -1284,3 +1284,168 @@
     max-width: 100%;
   }
 }
+// Adicione esses estilos no final do arquivo
+.productsSection {
+  margin-bottom: 1.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+
+  &.dark {
+    border-color: #374151;
+    background-color: #1f2937;
+  }
+}
+
+.productsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+
+  &.dark {
+    border-bottom-color: #374151;
+  }
+}
+
+.productsLabel {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #374151;
+
+  .dark & {
+    color: #f3f4f6;
+  }
+}
+
+.addProductButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover:not(:disabled) {
+    background-color: #059669;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.dark {
+    background-color: #059669;
+  }
+}
+
+.productCard {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .dark & {
+    background-color: #374151;
+    border-color: #4b5563;
+  }
+}
+
+.productCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+
+  .dark & {
+    border-bottom-color: #4b5563;
+  }
+}
+
+.productTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+
+  .dark & {
+    color: #f3f4f6;
+  }
+}
+
+.removeProductButton {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover:not(:disabled) {
+    background-color: #dc2626;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Adicione esses estilos
+.medicinaFields {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed #e5e7eb;
+  
+  .dark & {
+    border-top-color: #4b5563;
+  }
+}
+
+.productCard {
+  
+  .formGroup {
+    input {
+      &[type="text"] {
+      }
+    }
+  }
+}
+
+.formGroup {
+  label {
+    &::after {
+      content: '';
+      display: inline;
+    }
+  }
+  
+  label[for*="pgr"],
+  label[for*="ltcat"] {
+    &::after {
+      content: ' *';
+      color: #ef4444;
+    }
+  }
+}

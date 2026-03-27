@@ -1,3 +1,13 @@
+export interface ProductItem {
+  id: string;
+  productType: string;
+  periodicidade: 'anual' | 'mensal';
+  valor: string;
+  stage: string;
+   pgr?: string;      
+  ltcat?: string;
+}
+
 export interface Sale {
   id: string;
   date: string;
@@ -7,6 +17,7 @@ export interface Sale {
   contactMethod: 'presencial' | 'telefone' | 'email' | 'whatsapp';
   stage: 'Primeira Visita' |'prospecção' | 'apresentada proposta' | 'negociar' | 'fechar proposta' | 'finalizado' | 'fechado' |  'visita manutenção' | 'renegociar contrato' | 'perdida';
   productType: string;
+  products?: ProductItem[]; 
   comments: string;
   salesPerson: string;
   createdAt?: string;

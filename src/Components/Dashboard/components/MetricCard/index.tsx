@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './styles.module.scss';
+import { formatarMoeda } from '../../utils/dashboardCalculations';
 
 interface MetricCardProps {
   title: string;
@@ -18,6 +19,9 @@ const MetricCard: React.FC<MetricCardProps> = ({
   darkMode,
   icon
 }) => {
+  // Formatar o valor como moeda
+  const valorFormatado = formatarMoeda(value);
+
   return (
     <div className={`${styles.metricaCard} ${styles[`trend-${trend}`]} ${darkMode ? styles.dark : ''}`}>
       <div className={styles.cardHeader}>
@@ -27,7 +31,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
         {icon && <div className={styles.cardIcon}>{icon}</div>}
       </div>
       <div className={`${styles.metricaValor} ${darkMode ? styles.dark : ''}`}>
-        {value.toLocaleString('pt-BR')}
+        {valorFormatado}
       </div>
       <div className={`${styles.metricaInfo} ${trend === 'positive' ? styles.positivo : trend === 'negative' ? styles.negativo : ''}`}>
         {info}
