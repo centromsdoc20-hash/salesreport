@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { salesService } from '../../services/SalesService/SalesService';
 import type { Sale } from '../../types/Sales';
 import type { DadosGrafico } from './utils/dashboardCalculations';
-import { calcularMetricas, calcularDadosGrafico, formatarMoeda } from './utils/dashboardCalculations';
+import { calcularMetricas, calcularDadosGrafico } from './utils/dashboardCalculations';
 
 import MetricCard from './components/MetricCard';
 import SalesChart from './components/SalesChart';
