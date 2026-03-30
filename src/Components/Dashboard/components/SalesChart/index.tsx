@@ -32,7 +32,6 @@ const formatarMoeda = (valor: number): string => {
 };
 
 const SalesChart: React.FC<SalesChartProps> = ({ meses, fechado, pendente, estimado, darkMode }) => {
-  // Preparar dados para o gráfico
   const data = meses.map((mes, index) => ({
     mes,
     recebido: fechado[index] || 0,
@@ -61,7 +60,6 @@ const SalesChart: React.FC<SalesChartProps> = ({ meses, fechado, pendente, estim
     );
   }
 
-  // Cores baseadas no tema
   const colors = {
     recebido: darkMode ? '#10b981' : '#059669',
     emAberto: darkMode ? '#f59e0b' : '#d97706',

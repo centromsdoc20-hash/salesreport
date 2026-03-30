@@ -248,32 +248,17 @@ export const SalesModal: React.FC<SalesModalProps> = ({
                   </div>
                 </div>
 
-                {/* Campos específicos para Medicina do Trabalho */}
                 {isMedicinaTrabalho(product.productType) && (
                   <div className={styles.medicinaFields}>
                     <div className={styles.formRow}>
                       <div className={styles.formGroup}>
-                        <label htmlFor={`pgr-${product.id}`}>Valor do PGR *</label>
+                        <label htmlFor={`pgr-${product.id}`}>Valor do PGR/LTCAT *</label>
                         <input
                           type="text"
                           id={`pgr-${product.id}`}
                           value={product.pgr || ''}
                           onChange={(e) => updateProduct(product.id, 'pgr', e.target.value)}
-                          placeholder="Valor do PGR"
-                          required
-                          disabled={submitting}
-                          className={darkMode ? styles.dark : ''}
-                        />
-                      </div>
-                      
-                      <div className={styles.formGroup}>
-                        <label htmlFor={`ltcat-${product.id}`}>Valor do LTCAT *</label>
-                        <input
-                          type="text"
-                          id={`ltcat-${product.id}`}
-                          value={product.ltcat || ''}
-                          onChange={(e) => updateProduct(product.id, 'ltcat', e.target.value)}
-                          placeholder="Valor do LTCAT"
+                          placeholder="Valor do PGR/LTCAT"
                           required
                           disabled={submitting}
                           className={darkMode ? styles.dark : ''}
@@ -286,7 +271,6 @@ export const SalesModal: React.FC<SalesModalProps> = ({
             ))}
           </div>
 
-          {/* Resto do formulário - continua igual */}
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label htmlFor="contactMethod">Forma de Contato *</label>
