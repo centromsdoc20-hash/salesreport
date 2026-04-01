@@ -8,7 +8,6 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  ComposedChart
 } from 'recharts';
 import styles from './styles.module.scss';
 
