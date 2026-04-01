@@ -20,11 +20,12 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ darkMode, className = "", users = [] }) => {
   const [metricas, setMetricas] = useState({
-    totalFechado: 0,
-    totalPendente: 0,
-    totalEstimado: 0,
-    vendasFechadasMes: 0,
-    vendasPendentesMes: 0,
+    totalFechadoUltimos6Meses: 0,
+    totalPendenteUltimos6Meses: 0,
+    totalPerdidoUltimos6Meses: 0,
+    vendasFechadasUltimos30Dias: 0,
+    vendasPendentesUltimos30Dias: 0,
+    vendasPerdidasUltimos30Dias: 0,
     crescimentoFechado: 0
   });
   const [vendas, setVendas] = useState<Sale[]>([]);
@@ -32,7 +33,7 @@ const Dashboard: React.FC<DashboardProps> = ({ darkMode, className = "", users =
     meses: [], 
     fechado: [], 
     pendente: [], 
-    estimado: [] 
+    perdido: [] 
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -106,50 +107,59 @@ const Dashboard: React.FC<DashboardProps> = ({ darkMode, className = "", users =
       
       <div className={styles.metricasContainer}>
         <MetricCard
-          title="Total Recebido (Fechado)"
-          value={metricas.totalFechado}
-          info="Total de vendas já finalizadas"
+          title="Total Recebido (últimos 6 meses)"
+          value={metricas.totalFechadoUltimos6Meses}
+          info="Vendas finalizadas nos últimos 6 meses"
           trend="total"
           darkMode={darkMode}
           icon="💰"
         />
 
         <MetricCard
-          title="Valor em Aberto"
-          value={metricas.totalPendente}
-          info="Vendas em negociação"
+          title="Valores em Negociação (últimos 6 meses)"
+          value={metricas.totalPendenteUltimos6Meses}
+          info="Vendas em andamento nos últimos 6 meses"
           trend="neutral"
           darkMode={darkMode}
           icon="⏳"
         />
 
         <MetricCard
-          title="Valor Total Estimado"
-          value={metricas.totalEstimado}
-          info="Recebido + Em aberto"
-          trend="total"
+          title="Valores Perdidos (últimos 6 meses)"
+          value={metricas.totalPerdidoUltimos6Meses}
+          info="Vendas perdidas nos últimos 6 meses"
+          trend="negative"
           darkMode={darkMode}
-          icon="📊"
+          icon="❌"
         />
       </div>
 
       <div className={styles.metricasContainer}>
         <MetricCard
-          title="Fechado neste Mês"
-          value={metricas.vendasFechadasMes}
-          info={`${metricas.crescimentoFechado >= 0 ? '↗' : '↘'} ${Math.abs(metricas.crescimentoFechado)}% vs mês anterior`}
+          title="Fechado (Últimos 30 dias)"
+          value={metricas.vendasFechadasUltimos30Dias}
+          info={`${metricas.crescimentoFechado >= 0 ? '↗' : '↘'} ${Math.abs(metricas.crescimentoFechado)}% vs período anterior`}
           trend={metricas.crescimentoFechado >= 0 ? "positive" : "negative"}
           darkMode={darkMode}
           icon={metricas.crescimentoFechado >= 0 ? "📈" : "📉"}
         />
 
         <MetricCard
-          title="Em Aberto neste Mês"
-          value={metricas.vendasPendentesMes}
-          info="Valor pendente do mês atual"
+          title="Em Aberto (Últimos 30 dias)"
+          value={metricas.vendasPendentesUltimos30Dias}
+          info="Valor pendente nos últimos 30 dias"
           trend="neutral"
           darkMode={darkMode}
           icon="🔄"
+        />
+
+        <MetricCard
+          title="Perdido (Últimos 30 dias)"
+          value={metricas.vendasPerdidasUltimos30Dias}
+          info="Valor perdido nos últimos 30 dias"
+          trend="negative"
+          darkMode={darkMode}
+          icon="📉"
         />
       </div>
 
@@ -157,7 +167,7 @@ const Dashboard: React.FC<DashboardProps> = ({ darkMode, className = "", users =
         meses={dadosGrafico.meses}
         fechado={dadosGrafico.fechado}
         pendente={dadosGrafico.pendente}
-        estimado={dadosGrafico.estimado}
+        perdido={dadosGrafico.perdido}
         darkMode={darkMode}
       />
 
