@@ -148,6 +148,7 @@ export const useSalesForm = (
     }
   }
 
+
   setSubmitting(true);
 
   try {
@@ -170,7 +171,8 @@ export const useSalesForm = (
     }));
 
     console.log('📦 Produtos para salvar:', productsToSave);
-
+  console.log('🔍 PRODUTOS SENDO ENVIADOS:', JSON.stringify(productsToSave, null, 2));
+console.log('🔍 VALOR TOTAL CALCULADO:', totalValor);
     const saleData = {
       date: formData.date,
       companyName: formData.company,

@@ -18,9 +18,69 @@ export interface DadosGrafico {
 }
 
 const parseValor = (valorStr: string): number => {
-  if (!valorStr) return 0;
-  const valorNumerico = parseFloat(valorStr.replace(/\./g, '').replace(',', '.'));
-  return isNaN(valorNumerico) ? 0 : valorNumerico;
+  if (!valorStr || valorStr === '') return 0;
+  try {
+    let valorLimpo = valorStr.toString().trim();
+    
+    // Se já é um número puro (ex: 250)
+    if (!isNaN(parseFloat(valorLimpo)) && !valorLimpo.includes(',') && !valorLimpo.includes('.')) {
+      return parseFloat(valorLimpo);
+    }
+    
+    // Conta quantos pontos tem
+    const pontos = (valorLimpo.match(/\./g) || []).length;
+    const temVirgula = valorLimpo.includes(',');
+    
+    // Caso 1: "218.85" - ponto como decimal (2 casas) - tem 1 ponto e 2 dígitos depois
+    if (pontos === 1 && !temVirgula) {
+      const partes = valorLimpo.split('.');
+      if (partes[1] && partes[1].length === 2) {
+        // É decimal, não milhar
+        valorLimpo = valorLimpo.replace('.', ',');
+        valorLimpo = valorLimpo.replace(',', '.');
+        return parseFloat(valorLimpo);
+      }
+    }
+    
+    // Caso 2: "1.234,56" - ponto milhar e vírgula decimal
+    if (pontos > 0 && temVirgula) {
+      valorLimpo = valorLimpo.replace(/\./g, ''); // Remove pontos de milhar
+      valorLimpo = valorLimpo.replace(',', '.');  // Troca vírgula por ponto
+      return parseFloat(valorLimpo);
+    }
+    
+    // Caso 3: "1234,56" - só vírgula
+    if (temVirgula) {
+      valorLimpo = valorLimpo.replace(',', '.');
+      return parseFloat(valorLimpo);
+    }
+    
+    // Caso 4: "1234.56" - só ponto (pode ser milhar ou decimal)
+    if (pontos === 1 && !temVirgula) {
+      // Verifica se parece milhar (ex: 1.234)
+      const partes = valorLimpo.split('.');
+      if (partes[0].length >= 2 && partes[1].length === 3) {
+        // Provavelmente é milhar, remover ponto
+        valorLimpo = valorLimpo.replace(/\./g, '');
+        return parseFloat(valorLimpo);
+      } else {
+        // Provavelmente é decimal
+        valorLimpo = valorLimpo.replace('.', ',');
+        valorLimpo = valorLimpo.replace(',', '.');
+        return parseFloat(valorLimpo);
+      }
+    }
+    
+    // Fallback: remove tudo que não é número e vírgula
+    valorLimpo = valorLimpo.replace(/[^\d,]/g, '');
+    valorLimpo = valorLimpo.replace(',', '.');
+    
+    const numero = parseFloat(valorLimpo);
+    return isNaN(numero) ? 0 : numero;
+  } catch (error) {
+    console.error('Erro ao parsear valor:', valorStr, error);
+    return 0;
+  }
 };
 
 const isVendaFechada = (sale: Sale): boolean => {

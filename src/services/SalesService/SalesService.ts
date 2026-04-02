@@ -23,14 +23,13 @@ class SalesService {
     contactMethod: sale.contactMethod,
     stage: sale.stage,
     productType: sale.productType,
-    products: sale.products || [],  // <-- ADICIONADO!
     comments: sale.comments || '',
     salesPerson: sale.salesPerson,
     result: sale.result || '',
-    pgrLtcat: sale.pgrLtcat || '',
+    
     cnpj: sale.cnpj || '',
     lifes: sale.lifes || 0,
-    
+    pgrLtcat: sale.pgrLtcat || '',
     statusFechado: sale.statusFechado || false,
     vendedor: sale.vendedor || '',
     contatoTelefone: sale.contatoTelefone || '',
@@ -75,16 +74,17 @@ class SalesService {
       result: data.result || '',
       periodicidade: data.periodicidade || 'anual',
       valor: data.valor || '',
+      pgrLtcat: data.pgrLtcat || '',
       cnpj: data.cnpj || '',
       lifes: data.lifes || 0,
-      pgrLtcat: data.pgrLtcat || '',
-
+      
       statusFechado: data.statusFechado || false,
       vendedor: data.vendedor || '',
       contatoTelefone: data.contatoTelefone || '',
       contatoEmail: data.contatoEmail || '',
       contatoWhatsapp: data.contatoWhatsapp || '',
       contatoPresencial: data.contatoPresencial || '',
+      
 
       createdAt: data.createdAt?.toDate().toLocaleDateString('pt-BR') || new Date().toLocaleDateString('pt-BR'),
       updatedAt: data.updatedAt?.toDate().toLocaleDateString('pt-BR') || new Date().toLocaleDateString('pt-BR')
