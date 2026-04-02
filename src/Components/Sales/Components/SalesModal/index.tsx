@@ -249,23 +249,23 @@ export const SalesModal: React.FC<SalesModalProps> = ({
                 </div>
 
                 {isMedicinaTrabalho(product.productType) && (
-                  <div className={styles.medicinaFields}>
-                    <div className={styles.formRow}>
-                      <div className={styles.formGroup}>
-                        <label htmlFor={`pgr-${product.id}`}>Valor do PGR/LTCAT *</label>
-                        <input
-                          type="text"
-                          id={`pgr-${product.id}`}
-                          value={product.pgr || ''}
-                          onChange={(e) => updateProduct(product.id, 'pgr', e.target.value)}
-                          placeholder="Valor do PGR/LTCAT"
-                          required
-                          disabled={submitting}
-                          className={darkMode ? styles.dark : ''}
-                        />
-                      </div>
-                    </div>
-                  </div>
+             <div className={styles.medicinaFields}>
+    <div className={styles.formRow}>
+      <div className={styles.formGroup}>
+        <label htmlFor={`pgrLtcat-${product.id}`}>Valor do PGR/LTCAT *</label>
+        <input
+          type="text"
+          id={`pgrLtcat-${product.id}`}
+          value={product.pgrLtcat || ''}
+          onChange={(e) => updateProduct(product.id, 'pgrLtcat', e.target.value)}
+          placeholder="Valor do PGR/LTCAT"
+          required
+          disabled={submitting}
+          className={darkMode ? styles.dark : ''}
+        />
+      </div>
+    </div>
+  </div>
                 )}
               </div>
             ))}

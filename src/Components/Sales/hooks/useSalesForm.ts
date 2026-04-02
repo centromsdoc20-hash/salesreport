@@ -3,7 +3,6 @@ import type { Sale } from '../../../types/Sales';
 import type { Prospection } from '../../../types/Prospections';
 import { salesService } from '../../../services/SalesService/SalesService';
 
-// Tipo apenas para o estado interno do formulário
 interface FormDataState {
   date: string;
   company: string;
@@ -16,8 +15,7 @@ interface FormDataState {
     periodicidade: 'anual' | 'mensal';
     valor: string;
     stage: string;
-    pgr?: string;
-    ltcat?: string;
+    pgrLtcat?: string;
   }>;
   comments: string;
   salesPerson: string;
@@ -51,8 +49,7 @@ export const useSalesForm = (
       periodicidade: 'anual',
       valor: '',
       stage: 'apresentada proposta',
-      pgr: '',
-      ltcat: ''
+      pgrLtcat: ''
     }],
     comments: '',
     salesPerson: currentUser?.id || '',
@@ -83,8 +80,7 @@ export const useSalesForm = (
         periodicidade: 'anual',
         valor: '',
         stage: 'apresentada proposta',
-        pgr: '',
-        ltcat: ''
+        pgrLtcat: ''
       }]
     }));
   };
@@ -130,85 +126,92 @@ export const useSalesForm = (
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    if (!formData.company || !formData.contactName) {
-      alert('Por favor, preencha todos os campos obrigatórios.');
+  if (!formData.company || !formData.contactName) {
+    alert('Por favor, preencha todos os campos obrigatórios.');
+    return;
+  }
+
+  for (let i = 0; i < formData.products.length; i++) {
+    const product = formData.products[i];
+    
+    if (!product.productType) {
+      alert(`Por favor, selecione o tipo de produto para o item ${i + 1}.`);
       return;
     }
-
-    const hasInvalidProduct = formData.products.some(p => !p.productType);
-    if (hasInvalidProduct) {
-      alert('Por favor, selecione o tipo de produto para todos os itens.');
+    
+    if (product.productType === 'Medicina do Trabalho' && !product.pgrLtcat) {
+      alert(`Por favor, informe o valor do PGR/LTCAT para o produto ${i + 1} (Medicina do Trabalho).`);
       return;
     }
+  }
 
-    // Validar campos de PGR e LTCAT se o produto for medicina do trabalho
-    for (const product of formData.products) {
-      if (product.productType === 'medicina do trabalho') {
-        if (!product.pgr) {
-          alert('Por favor, informe o valor do PGR para Medicina do Trabalho.');
-          return;
-        }
-        if (!product.ltcat) {
-          alert('Por favor, informe o valor do LTCAT para Medicina do Trabalho.');
-          return;
-        }
-      }
+  setSubmitting(true);
+
+  try {
+    const stagesOrder = ['Primeira Visita', 'apresentada proposta', 'negociar', 'fechar proposta', 'finalizado', 'visita manutenção', 'renegociar contrato', 'perdida'];
+    const minStageIndex = Math.min(...formData.products.map(p => stagesOrder.indexOf(p.stage)));
+    const mainStage = stagesOrder[minStageIndex] || 'apresentada proposta';
+
+    const totalValor = formData.products.reduce((total, p) => {
+      const valorNumerico = parseFloat(p.valor.replace(/\./g, '').replace(',', '.'));
+      return total + (isNaN(valorNumerico) ? 0 : valorNumerico);
+    }, 0);
+
+    const productsToSave = formData.products.map(p => ({
+      id: p.id,
+      productType: p.productType,
+      periodicidade: p.periodicidade,
+      valor: p.valor,
+      stage: p.stage,
+      pgrLtcat: p.pgrLtcat || ''
+    }));
+
+    console.log('📦 Produtos para salvar:', productsToSave);
+
+    const saleData = {
+      date: formData.date,
+      companyName: formData.company,
+      type: 'Em negociação' as const,
+      contactName: formData.contactName,
+      contactMethod: formData.contactMethod,
+      stage: mainStage as any,
+      cnpj: formData.cnpj,
+      productType: formData.products.map(p => p.productType).join(', '),
+      products: productsToSave,  // <-- ISSO É CRUCIAL! Estava faltando?
+      comments: formData.comments,
+      salesPerson: formData.salesPerson,
+      lifes: Number(formData.lifes),
+      result: mainStage === 'finalizado' ? 'Finalizado' : (mainStage === 'perdida' ? 'Perdida' : 'Negociação em andamento'),
+      statusFechado: formData.statusFechado,
+      vendedor: formData.vendedor,
+      contatoTelefone: formData.contatoTelefone,
+      contatoEmail: formData.contatoEmail,
+      contatoWhatsapp: formData.contatoWhatsapp,
+      contatoPresencial: formData.contatoPresencial,
+      valor: totalValor.toString(),
+      periodicidade: 'anual'
+    };
+
+    console.log('📦 Dados completos para salvar:', saleData);
+
+    if (editingSale) {
+      await salesService.updateSale(editingSale.id, saleData as any);
+    } else {
+      await salesService.addSale(saleData as any);
     }
 
-    setSubmitting(true);
-
-    try {
-      const stagesOrder = ['Primeira Visita', 'apresentada proposta', 'negociar', 'fechar proposta', 'finalizado', 'visita manutenção', 'renegociar contrato', 'perdida'];
-      const minStageIndex = Math.min(...formData.products.map(p => stagesOrder.indexOf(p.stage)));
-      const mainStage = stagesOrder[minStageIndex] || 'apresentada proposta';
-
-      const totalValor = formData.products.reduce((total, p) => {
-        const valorNumerico = parseFloat(p.valor.replace(/\./g, '').replace(',', '.'));
-        return total + (isNaN(valorNumerico) ? 0 : valorNumerico);
-      }, 0);
-
-      const saleData: Omit<Sale, 'id' | 'createdAt' | 'updatedAt'> = {
-        date: formData.date,
-        companyName: formData.company,
-        type: formData.type || 'Em negociação',
-        contactName: formData.contactName,
-        contactMethod: formData.contactMethod,
-        stage: mainStage as any,
-        cnpj: formData.cnpj,
-        productType: formData.products.map(p => p.productType).join(', '),
-        products: formData.products,
-        comments: formData.comments,
-        salesPerson: formData.salesPerson,
-        lifes: formData.lifes,
-        result: mainStage === 'finalizado' ? 'Finalizado' : (mainStage === 'perdida' ? 'Perdida' : 'Negociação em andamento'),
-        statusFechado: formData.statusFechado,
-        vendedor: formData.vendedor,
-        contatoTelefone: formData.contatoTelefone,
-        contatoEmail: formData.contatoEmail,
-        contatoWhatsapp: formData.contatoWhatsapp,
-        contatoPresencial: formData.contatoPresencial,
-        valor: totalValor.toString(),
-        periodicidade: 'anual'
-      };
-
-      if (editingSale) {
-        await salesService.updateSale(editingSale.id, saleData);
-      } else {
-        await salesService.addSale(saleData);
-      }
-
-      onSuccess();
-      onClose();
-    } catch (error) {
-      console.error('Erro ao salvar venda:', error);
-      alert('Erro ao salvar venda. Tente novamente.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    onSuccess();
+    onClose();
+  } catch (error) {
+    console.error('Erro ao salvar venda:', error);
+    alert('Erro ao salvar venda. Tente novamente.');
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   const resetForm = () => {
     setFormData({
@@ -223,8 +226,7 @@ export const useSalesForm = (
         periodicidade: 'anual',
         valor: '',
         stage: 'apresentada proposta',
-        pgr: '',
-        ltcat: ''
+        pgrLtcat: ''
       }],
       comments: '',
       salesPerson: currentUser?.id || '',
@@ -239,42 +241,54 @@ export const useSalesForm = (
     });
   };
 
-  const setEditingData = (sale: Sale) => {
-    let products = [];
-    
-    if (sale.products && Array.isArray(sale.products)) {
-      products = sale.products;
-    } else {
-      products = [{
-        id: Date.now().toString(),
-        productType: sale.productType,
-        periodicidade: sale.periodicidade || 'anual',
-        valor: sale.valor || '',
-        stage: sale.stage === "fechado" ? "finalizado" : sale.stage,
-        pgr: '',
-        ltcat: ''
-      }];
-    }
+ const setEditingData = (sale: Sale) => {
+  console.log('Editando venda:', sale);
+  
+  let products = [];
+  
+  if (sale.products && Array.isArray(sale.products) && sale.products.length > 0) {
+    // Se já tem produtos no formato array
+    products = sale.products.map(p => ({
+      id: p.id || Date.now().toString(),
+      productType: p.productType || '',
+      periodicidade: p.periodicidade || 'anual',
+      valor: p.valor || '',
+      stage: p.stage || 'apresentada proposta',
+      pgrLtcat: p.pgrLtcat || ''  // Carrega o valor do PGR/LTCAT
+    }));
+    console.log('Produtos carregados do sale.products:', products);
+  } else {
+    // Compatibilidade com dados antigos (formato único)
+    products = [{
+      id: Date.now().toString(),
+      productType: sale.productType || '',
+      periodicidade: sale.periodicidade || 'anual',
+      valor: sale.valor || '',
+      stage: sale.stage === "fechado" ? "finalizado" : sale.stage,
+      pgrLtcat: ''  // Dados antigos não têm PGR/LTCAT
+    }];
+    console.log('Produtos criados do formato antigo:', products);
+  }
 
-    setFormData({
-      date: sale.date,
-      company: sale.companyName,
-      type: sale.type,
-      contactName: sale.contactName,
-      contactMethod: sale.contactMethod,
-      products: products,
-      comments: sale.comments,
-      salesPerson: sale.salesPerson,
-      statusFechado: sale.statusFechado,
-      lifes: sale.lifes,
-      cnpj: sale.cnpj || '',
-      vendedor: sale.vendedor,
-      contatoTelefone: sale.contatoTelefone || '',
-      contatoEmail: sale.contatoEmail || '',
-      contatoWhatsapp: sale.contatoWhatsapp || '',
-      contatoPresencial: sale.contatoPresencial || '',
-    });
-  };
+  setFormData({
+    date: sale.date,
+    company: sale.companyName,
+    type: sale.type,
+    contactName: sale.contactName,
+    contactMethod: sale.contactMethod,
+    products: products,
+    comments: sale.comments,
+    salesPerson: sale.salesPerson,
+    statusFechado: sale.statusFechado,
+    lifes: sale.lifes,
+    cnpj: sale.cnpj || '',
+    vendedor: sale.vendedor,
+    contatoTelefone: sale.contatoTelefone || '',
+    contatoEmail: sale.contatoEmail || '',
+    contatoWhatsapp: sale.contatoWhatsapp || '',
+    contatoPresencial: sale.contatoPresencial || '',
+  });
+};
 
   return {
     formData,

@@ -4,8 +4,7 @@ export interface ProductItem {
   periodicidade: 'anual' | 'mensal';
   valor: string;
   stage: string;
-   pgr?: string;      
-  ltcat?: string;
+  pgrLtcat?: string;
 }
 
 export interface Sale {
@@ -21,6 +20,7 @@ export interface Sale {
   comments: string;
   salesPerson: string;
   createdAt?: string;
+  pgrLtcat?: string;
   updatedAt?: string;
   cnpj?: string;
   lifes: number;

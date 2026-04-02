@@ -14,38 +14,39 @@ import type { Sale } from '../../types/Sales';
 import { userService } from '../userService/userService';
 
 class SalesService {
-  private saleToFirestore(sale: Omit<Sale, 'id'> | Partial<Sale>): any {
-    return {
-      date: sale.date,
-      companyName: sale.companyName,
-      type: sale.type,
-      contactName: sale.contactName,
-      contactMethod: sale.contactMethod,
-      stage: sale.stage,
-      productType: sale.productType,
-      comments: sale.comments || '',
-      salesPerson: sale.salesPerson,
-      result: sale.result || '',
-      
-      cnpj: sale.cnpj || '',
-      lifes: sale.lifes || 0,
-      
-      statusFechado: sale.statusFechado || false,
-      vendedor: sale.vendedor || '',
-      contatoTelefone: sale.contatoTelefone || '',
-      contatoEmail: sale.contatoEmail || '',
-      contatoWhatsapp: sale.contatoWhatsapp || '',
-      contatoPresencial: sale.contatoPresencial || '',
-      
-      periodicidade: sale.periodicidade || 'anual',
-      valor: sale.valor || '',
+ private saleToFirestore(sale: Omit<Sale, 'id'> | Partial<Sale>): any {
+  return {
+    date: sale.date,
+    companyName: sale.companyName,
+    type: sale.type,
+    contactName: sale.contactName,
+    contactMethod: sale.contactMethod,
+    stage: sale.stage,
+    productType: sale.productType,
+    products: sale.products || [],  // <-- ADICIONADO!
+    comments: sale.comments || '',
+    salesPerson: sale.salesPerson,
+    result: sale.result || '',
+    pgrLtcat: sale.pgrLtcat || '',
+    cnpj: sale.cnpj || '',
+    lifes: sale.lifes || 0,
+    
+    statusFechado: sale.statusFechado || false,
+    vendedor: sale.vendedor || '',
+    contatoTelefone: sale.contatoTelefone || '',
+    contatoEmail: sale.contatoEmail || '',
+    contatoWhatsapp: sale.contatoWhatsapp || '',
+    contatoPresencial: sale.contatoPresencial || '',
+    
+    periodicidade: sale.periodicidade || 'anual',
+    valor: sale.valor || '',
 
-      createdAt: sale.createdAt ? 
-        this.parseDateToTimestamp(sale.createdAt) : 
-        Timestamp.now(),
-      updatedAt: Timestamp.now()
-    };
-  }
+    createdAt: sale.createdAt ? 
+      this.parseDateToTimestamp(sale.createdAt) : 
+      Timestamp.now(),
+    updatedAt: Timestamp.now()
+  };
+}
 
   private parseDateToTimestamp(dateString: string): Timestamp {
     try {
@@ -68,6 +69,7 @@ class SalesService {
       contactMethod: data.contactMethod,
       stage: data.stage,
       productType: data.productType,
+      products: data.products || [],
       comments: data.comments || '',
       salesPerson: data.salesPerson,
       result: data.result || '',
@@ -75,14 +77,14 @@ class SalesService {
       valor: data.valor || '',
       cnpj: data.cnpj || '',
       lifes: data.lifes || 0,
-      
+      pgrLtcat: data.pgrLtcat || '',
+
       statusFechado: data.statusFechado || false,
       vendedor: data.vendedor || '',
       contatoTelefone: data.contatoTelefone || '',
       contatoEmail: data.contatoEmail || '',
       contatoWhatsapp: data.contatoWhatsapp || '',
       contatoPresencial: data.contatoPresencial || '',
-      
 
       createdAt: data.createdAt?.toDate().toLocaleDateString('pt-BR') || new Date().toLocaleDateString('pt-BR'),
       updatedAt: data.updatedAt?.toDate().toLocaleDateString('pt-BR') || new Date().toLocaleDateString('pt-BR')
@@ -155,79 +157,76 @@ class SalesService {
     }
   }
 
-  async addSale(sale: Omit<Sale, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
-    try {
-      
-      const validatedSale = {
-        ...sale,
-        comments: sale.comments || '',
-        result: sale.result || '',
-        statusFechado: sale.statusFechado || false,
-        vendedor: sale.vendedor || '',
-        contatoTelefone: sale.contatoTelefone || '',
-        contatoEmail: sale.contatoEmail || '',
-        contatoWhatsapp: sale.contatoWhatsapp || '',
-        contatoPresencial: sale.contatoPresencial || '',
-        cnpj: sale.cnpj || 'N/A',
-        lifes: sale.lifes || 0,
-        
-        periodicidade: sale.periodicidade || 'anual',
-        valor: sale.valor || '',
+async addSale(sale: Omit<Sale, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+  try {
+    const validatedSale = {
+      ...sale,
+      comments: sale.comments || '',
+      result: sale.result || '',
+      statusFechado: sale.statusFechado || false,
+      vendedor: sale.vendedor || '',
+      contatoTelefone: sale.contatoTelefone || '',
+      contatoEmail: sale.contatoEmail || '',
+      contatoWhatsapp: sale.contatoWhatsapp || '',
+      contatoPresencial: sale.contatoPresencial || '',
+      cnpj: sale.cnpj || 'N/A',
+      lifes: sale.lifes || 0,
+      periodicidade: sale.periodicidade || 'anual',
+      valor: sale.valor || '',
+      products: sale.products || [],  // <-- ADICIONADO!
+      createdAt: new Date().toLocaleDateString('pt-BR'),
+    };
 
-        createdAt: new Date().toLocaleDateString('pt-BR'),
-      };
-
-
-      const saleData = this.saleToFirestore(validatedSale as any);
-
-      const docRef = await addDoc(collection(db, 'sales'), saleData);
-      return docRef.id;
-    } catch (error: any) {
-      throw new Error('Erro ao adicionar venda: ' + error.message);
-    }
+    const saleData = this.saleToFirestore(validatedSale as any);
+    const docRef = await addDoc(collection(db, 'sales'), saleData);
+    return docRef.id;
+  } catch (error: any) {
+    throw new Error('Erro ao adicionar venda: ' + error.message);
   }
+}
 
-  async updateSale(saleId: string, sale: Partial<Omit<Sale, 'id' | 'createdAt'>>): Promise<void> {
-    try {
-      const docRef = doc(db, 'sales', saleId);
-      
-      const updateData: any = {
-        updatedAt: Timestamp.now()
-      };
+async updateSale(saleId: string, sale: Partial<Omit<Sale, 'id' | 'createdAt'>>): Promise<void> {
+  try {
+    const docRef = doc(db, 'sales', saleId);
+    
+    const updateData: any = {
+      updatedAt: Timestamp.now()
+    };
 
-      if (sale.date !== undefined) updateData.date = sale.date;
-      if (sale.companyName !== undefined) updateData.companyName = sale.companyName;
-      if (sale.type !== undefined) updateData.type = sale.type;
-      if (sale.contactName !== undefined) updateData.contactName = sale.contactName;
-      if (sale.contactMethod !== undefined) updateData.contactMethod = sale.contactMethod;
-      if (sale.stage !== undefined) updateData.stage = sale.stage;
-      if (sale.productType !== undefined) updateData.productType = sale.productType;
-      if (sale.comments !== undefined) updateData.comments = sale.comments || '';
-      if (sale.salesPerson !== undefined) updateData.salesPerson = sale.salesPerson;
-      if (sale.result !== undefined) updateData.result = sale.result || '';
-      
-      if (sale.cnpj !== undefined) updateData.cnpj = sale.cnpj || '';
-      if (sale.lifes !== undefined) updateData.lifes = sale.lifes || 0;
-      
-      if (sale.statusFechado !== undefined) updateData.statusFechado = sale.statusFechado;
-      if (sale.vendedor !== undefined) updateData.vendedor = sale.vendedor || '';
-      if (sale.contatoTelefone !== undefined) updateData.contatoTelefone = sale.contatoTelefone || '';
-      if (sale.contatoEmail !== undefined) updateData.contatoEmail = sale.contatoEmail || '';
-      if (sale.contatoWhatsapp !== undefined) updateData.contatoWhatsapp = sale.contatoWhatsapp || '';
-      if (sale.contatoPresencial !== undefined) updateData.contatoPresencial = sale.contatoPresencial || '';
+    if (sale.date !== undefined) updateData.date = sale.date;
+    if (sale.companyName !== undefined) updateData.companyName = sale.companyName;
+    if (sale.type !== undefined) updateData.type = sale.type;
+    if (sale.contactName !== undefined) updateData.contactName = sale.contactName;
+    if (sale.contactMethod !== undefined) updateData.contactMethod = sale.contactMethod;
+    if (sale.stage !== undefined) updateData.stage = sale.stage;
+    if (sale.productType !== undefined) updateData.productType = sale.productType;
+    if (sale.products !== undefined) updateData.products = sale.products;  // <-- ADICIONADO!
+    if (sale.comments !== undefined) updateData.comments = sale.comments || '';
+    if (sale.salesPerson !== undefined) updateData.salesPerson = sale.salesPerson;
+    if (sale.result !== undefined) updateData.result = sale.result || '';
+    
+    if (sale.cnpj !== undefined) updateData.cnpj = sale.cnpj || '';
+    if (sale.lifes !== undefined) updateData.lifes = sale.lifes || 0;
+    
+    if (sale.statusFechado !== undefined) updateData.statusFechado = sale.statusFechado;
+    if (sale.vendedor !== undefined) updateData.vendedor = sale.vendedor || '';
+    if (sale.contatoTelefone !== undefined) updateData.contatoTelefone = sale.contatoTelefone || '';
+    if (sale.contatoEmail !== undefined) updateData.contatoEmail = sale.contatoEmail || '';
+    if (sale.contatoWhatsapp !== undefined) updateData.contatoWhatsapp = sale.contatoWhatsapp || '';
+    if (sale.contatoPresencial !== undefined) updateData.contatoPresencial = sale.contatoPresencial || '';
 
-       if (sale.periodicidade !== undefined) updateData.periodicidade = sale.periodicidade || 'anual';
-      if (sale.valor !== undefined) updateData.valor = sale.valor || '';
-      
-      console.log('🔥 [SALES SERVICE] Dados para atualização no Firestore:', updateData);
+    if (sale.periodicidade !== undefined) updateData.periodicidade = sale.periodicidade || 'anual';
+    if (sale.valor !== undefined) updateData.valor = sale.valor || '';
+    
+    console.log('🔥 [SALES SERVICE] Dados para atualização no Firestore:', updateData);
 
-      await updateDoc(docRef, updateData);
-      console.log('✅ [SALES SERVICE] Venda atualizada com sucesso');
-    } catch (error: any) {
-      console.error('❌ [SALES SERVICE] Erro ao atualizar venda:', error);
-      throw new Error('Erro ao atualizar venda: ' + error.message);
-    }
+    await updateDoc(docRef, updateData);
+    console.log('✅ [SALES SERVICE] Venda atualizada com sucesso');
+  } catch (error: any) {
+    console.error('❌ [SALES SERVICE] Erro ao atualizar venda:', error);
+    throw new Error('Erro ao atualizar venda: ' + error.message);
   }
+}
 
   async deleteSale(saleId: string): Promise<void> {
     try {
