@@ -3,6 +3,7 @@ import { FiX, FiPlus, FiTrash2 } from 'react-icons/fi';
 import ProspectionSearch from '../../../ProspectionSearch';
 import type { Product } from '../../../../types/Products';
 import type { Prospection } from '../../../../types/Prospections';
+import { formatDateToISO, formatDateToBR } from '../../utils/dateUtils';
 import styles from '../../styles.module.scss';
 
 interface SalesModalProps {
@@ -42,8 +43,29 @@ export const SalesModal: React.FC<SalesModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const isMedicinaTrabalho = (productType: string) => {
+  const isMedicinaTrabalho = (productType: string): boolean => {
     return productType === 'Medicina do Trabalho';
+  };
+
+  /**
+   * Handler específico para o campo de data
+   * Converte o valor do input (ISO) para o formato brasileiro antes de salvar
+   */
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const isoDate = e.target.value; // Formato ISO (YYYY-MM-DD)
+    const brDate = formatDateToBR(isoDate); // Converte para DD/MM/YYYY
+    
+    // Cria um evento sintético com o valor convertido
+    const syntheticEvent = {
+      ...e,
+      target: {
+        ...e.target,
+        name: 'date',
+        value: brDate
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+    
+    onFormChange(syntheticEvent);
   };
 
   return (
@@ -79,8 +101,8 @@ export const SalesModal: React.FC<SalesModalProps> = ({
                 type="date"
                 id="date"
                 name="date"
-                value={formData.date.split('/').reverse().join('-')}
-                onChange={onFormChange}
+                value={formatDateToISO(formData.date || '')} // Garante formato ISO para o input
+                onChange={handleDateChange} // Converte de volta para BR
                 required
                 disabled={submitting}
                 className={darkMode ? styles.dark : ''}
