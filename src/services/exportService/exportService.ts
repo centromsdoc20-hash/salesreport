@@ -16,6 +16,8 @@ export class ExportService {
         return {
           'Data': sale.date,
           'Empresa': sale.companyName,
+          'CNPJ': sale.cnpj || '',
+          'Número de Vidas': sale.lifes || 0,
           'Tipo': this.getTypeLabel(sale.type),
           'Nome do Contato': sale.contactName,
           'Forma de Contato': this.getContactMethodLabel(sale.contactMethod),

@@ -52,8 +52,9 @@ const ExportButton: React.FC<ExportButtonProps> = ({
 
   const exportToCSV = (sales: Sale[], filename: string) => {
     const headers = [
-      'Data', 'Empresa', 'Tipo', 'Nome do Contato', 'Forma de Contato',
-      'Estágio', 'Tipo de Produto', 'Resultado', 'Vendedor', 'Comentários'
+      'Data', 'Empresa', 'Tipo', 'Nome do Contato','CNPJ', 'Número de Vidas','Forma de Contato',
+      'Estágio', 'Tipo de Produto', 'Resultado', 'Vendedor', 'Comentários',
+      
     ].join(',');
     
     const csvData = sales.map(sale => [
@@ -61,6 +62,8 @@ const ExportButton: React.FC<ExportButtonProps> = ({
       `"${sale.companyName}"`,
       sale.type,
       `"${sale.contactName}"`,
+      sale.cnpj || '',
+    sale.lifes || 0,
       sale.contactMethod,
       sale.stage,
       `"${sale.productType}"`,
