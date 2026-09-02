@@ -53,6 +53,7 @@ export const SalesFilters: React.FC<SalesFiltersProps> = ({
           >
             <option value="">Todos os estágios</option>
             <option value="Primeira Visita">Primeira Visita</option>
+            <option value="sondagem">Sondagem</option>
             <option value="apresentada proposta">Apresentada proposta</option>
             <option value="negociar">Negociar</option>
             <option value="finalizado">Finalizado</option>

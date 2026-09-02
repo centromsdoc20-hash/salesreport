@@ -14,6 +14,7 @@ export const getStageLabel = (stage: string) => {
   const labels: Record<string, string> = {
     'apresentada proposta': 'Apresentada proposta',
     'negociar': 'Negociar',
+    'sondagem': 'Sondagem',
     'fechar proposta': 'Fechar proposta',
     'finalizado': 'Finalizado',
     'Primeira Visita': 'Primeira Visita',

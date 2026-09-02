@@ -231,6 +231,7 @@ export const SalesModal: React.FC<SalesModalProps> = ({
                     >
                       <option value="Primeira Visita">Primeira Visita</option>
                       <option value="apresentada proposta">Apresentada proposta</option>
+                      <option value="sondagem">Sondagem</option> 
                       <option value="negociar">Negociar</option>
                       <option value="fechar proposta">Fechar proposta</option>
                       <option value="finalizado">Finalizado</option>

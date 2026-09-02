@@ -14,7 +14,7 @@ export interface Sale {
   type: string;
   contactName: string;
   contactMethod: 'presencial' | 'telefone' | 'email' | 'whatsapp';
-  stage: 'Primeira Visita' |'prospecção' | 'apresentada proposta' | 'negociar' | 'fechar proposta' | 'finalizado' | 'fechado' |  'visita manutenção' | 'renegociar contrato' | 'perdida';
+  stage: 'Primeira Visita' |'prospecção' | 'apresentada proposta' |'Sondagem' |'negociar' | 'fechar proposta' | 'finalizado' | 'fechado' |  'visita manutenção' | 'renegociar contrato' | 'perdida';
   productType: string;
   products?: ProductItem[]; 
   comments: string;

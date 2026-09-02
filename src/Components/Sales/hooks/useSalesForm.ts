@@ -152,7 +152,7 @@ export const useSalesForm = (
   setSubmitting(true);
 
   try {
-    const stagesOrder = ['Primeira Visita', 'apresentada proposta', 'negociar', 'fechar proposta', 'finalizado', 'visita manutenção', 'renegociar contrato', 'perdida'];
+    const stagesOrder = ['Primeira Visita', 'apresentada proposta', 'sondagem','negociar', 'fechar proposta', 'finalizado', 'visita manutenção', 'renegociar contrato', 'perdida'];
     const minStageIndex = Math.min(...formData.products.map(p => stagesOrder.indexOf(p.stage)));
     const mainStage = stagesOrder[minStageIndex] || 'apresentada proposta';
 
